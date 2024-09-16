@@ -103,16 +103,21 @@ int main() {
 
   // clang-format off
   float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f
+    0.5f,  0.5f, 0.0f,  // top right
+    0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left 
+  };
+  unsigned int indices[] = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
   };
   // clang-format on
 
-  GLuint VAO;
+  GLuint VBO, VAO, EBO;
   glGenVertexArrays(1, &VAO);
-  GLuint VBO;
   glGenBuffers(1, &VBO);
+  glGenBuffers(1, &EBO);
 
   // bind the Vertex Array Object first, then bind and set vertex buffer(s), and
   // then configure vertex attributes(s).
@@ -121,6 +126,10 @@ int main() {
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   // sizeof vertices triangle 3x3 = 9 x 4 byte = 36 byte
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
   /**
    * We need to tell opengl how to intepret the vertex data before rendering
    * Look at the vertex buffer data image on the pdf or site learnopengl.com
@@ -187,7 +196,8 @@ int main() {
     // seeing as we only have a single VAO there's no need to bind it every
     // time, but we'll do so to keep things a bit more organized
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
@@ -198,6 +208,7 @@ int main() {
   // ------------------------------------------------------------------------
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
+  glDeleteBuffers(1, &EBO);
   glDeleteProgram(shaderProgram);
 
   // glfw: terminate, clearing all previously allocated GLFW resources.
