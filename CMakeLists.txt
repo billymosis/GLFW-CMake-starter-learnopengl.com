@@ -18,6 +18,14 @@ add_subdirectory(external/glfw)
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/external/glad/src/glad.c")
 
+# Uncomment this to use default glad dependencies inside glfw
+# option( GLFW-CMAKE-STARTER-USE-GLFW-GLAD "Use GLAD from GLFW" ON )
+#
+# if( GLFW-CMAKE-STARTER-USE-GLFW-GLAD )
+#     include_directories("${GLFW_SOURCE_DIR}/deps")
+#     set( GLAD_GL "${GLFW_SOURCE_DIR}/deps/glad/gl.h" )
+# endif()
+
 # Linker flags for MSVC
 if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
