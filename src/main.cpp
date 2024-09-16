@@ -55,6 +55,10 @@ int main() {
 
   GLuint VBO;
   glGenBuffers(1, &VBO);
+  GLuint VAO;
+  glGenVertexArrays(1, &VAO);
+
+  glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   // sizeof vertices triangle 3x3 = 9 x 4 byte = 36 byte
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -165,6 +169,10 @@ int main() {
     // Rendering commands
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(shaderProgram);
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
