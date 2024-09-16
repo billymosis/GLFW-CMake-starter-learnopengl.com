@@ -103,10 +103,13 @@ int main() {
 
   // clang-format off
   float vertices[] = {
-    0.5f,  0.5f, 0.0f,  // top right
-    0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+    -1.0f, -0.5f, 0.0f,
+    0.0f, -0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+
+    0.0f, -0.5f, 0.0f,
+    1.0f, -0.5f, 0.0f,
+    0.5f,  0.5f, 0.0f,
   };
   unsigned int indices[] = {  // note that we start from 0!
     0, 1, 3,   // first triangle
@@ -197,7 +200,7 @@ int main() {
     // time, but we'll do so to keep things a bit more organized
     glBindVertexArray(VAO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6); // set the count to 6 since we're drawing 6 vertices now (2 triangles); not 3!
 
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
