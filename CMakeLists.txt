@@ -34,6 +34,8 @@ endif()
 # Source files for your project
 set(GLFW-CMAKE-STARTER-SRC
     src/main.cpp
+    src/shader.cpp
+    src/shader.hpp
 )
 
 # Create the executable

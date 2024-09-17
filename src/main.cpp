@@ -1,9 +1,8 @@
 // clang-format off
-#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
-#include "./common.cpp"
+#include "./shader.hpp"
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
@@ -33,80 +32,8 @@ int main() {
     return -1;
   }
 
-  // Var to check if shader compiled successfullly
-  int success;
-  char infoLog[512];
-
-  // Create shader object reference by ID same as VBO above
-  std::string vertexShaderSource =
-      readShaderFromFile("../shaders/vertex_shader.glsl");
-  GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
-
-  // Check compile status
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-  if (!success) {
-    glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  // Create fragment shader
-  std::string fragmentShaderOrangeSource =
-      readShaderFromFile("../shaders/fragment_shader_orange.glsl");
-  GLuint fragmentShaderOrange =
-      compileShader(GL_FRAGMENT_SHADER, fragmentShaderOrangeSource);
-
-  glGetShaderiv(fragmentShaderOrange, GL_COMPILE_STATUS, &success);
-
-  // Create fragment shader RED
-  std::string fragmentShaderRedSource =
-      readShaderFromFile("../shaders/fragment_shader_red.glsl");
-  GLuint fragmentShaderRed =
-      compileShader(GL_FRAGMENT_SHADER, fragmentShaderRedSource);
-
-  glGetShaderiv(fragmentShaderRed, GL_COMPILE_STATUS, &success);
-
-  if (!success) {
-    glGetShaderInfoLog(fragmentShaderOrange, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  // Shader Program
-
-  GLuint shaderProgramOrange;
-  shaderProgramOrange = glCreateProgram();
-  glAttachShader(shaderProgramOrange, vertexShader);
-  glAttachShader(shaderProgramOrange, fragmentShaderOrange);
-  glLinkProgram(shaderProgramOrange);
-
-  // Check if shader program is success
-  glGetProgramiv(shaderProgramOrange, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderProgramOrange, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  GLuint shaderProgramRed;
-  shaderProgramRed = glCreateProgram();
-  glAttachShader(shaderProgramRed, vertexShader);
-  glAttachShader(shaderProgramRed, fragmentShaderRed);
-  glLinkProgram(shaderProgramRed);
-
-  // Check if shader program is success
-  glGetProgramiv(shaderProgramRed, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetProgramInfoLog(shaderProgramRed, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-              << infoLog << std::endl;
-  }
-
-  // Delete the shader object one linked to the program
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShaderOrange);
-  glDeleteShader(fragmentShaderRed);
+  Shader ourShader = Shader("../shaders/vertex_shader.glsl",
+                            "../shaders/fragment_shader_orange.glsl");
 
   // clang-format off
   float vertices1[] = {
@@ -198,7 +125,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Draw triangle
-    glUseProgram(shaderProgramOrange);
+    ourShader.use();
 
     // Draw 1st triangle
     // seeing as we only have a single VAO there's no need to bind it every
@@ -216,7 +143,6 @@ int main() {
   // ------------------------------------------------------------------------
   glDeleteVertexArrays(2, VAOs);
   glDeleteBuffers(2, VBOs);
-  glDeleteProgram(shaderProgramOrange);
 
   // glfw: terminate, clearing all previously allocated GLFW resources.
   // ------------------------------------------------------------------
