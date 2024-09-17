@@ -1,4 +1,5 @@
 // clang-format off
+#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
@@ -205,9 +206,15 @@ int main() {
     // Rendering commands
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    float timeValue = glfwGetTime();
+    float greenValue = (std::sin(timeValue) / 2.0f) + 0.5f;
+    int vertexColorLocation =
+        glGetUniformLocation(shaderProgramOrange, "ourColor");
 
     // Draw triangle
     glUseProgram(shaderProgramOrange);
+
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
     // Draw 1st triangle
     // seeing as we only have a single VAO there's no need to bind it every
