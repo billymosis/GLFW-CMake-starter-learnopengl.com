@@ -2,32 +2,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
+#include "./common.cpp"
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
-const char *vertexShaderSource =
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0f);\n"
-    "}\0";
-
-const char *fragmentShaderSource1 = "#version 330 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-                                   "}\0";
-
-const char *fragmentShaderSource2 = "#version 330 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
-                                   "}\0";
 int main() {
   std::cout << "Hello World!" << std::endl;
   // GLFW initialize and configure
@@ -57,12 +37,9 @@ int main() {
   char infoLog[512];
 
   // Create shader object reference by ID same as VBO above
-  GLuint vertexShader;
-  vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-  // Attach the shader source code to the shader object and compile it!
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-  glCompileShader(vertexShader);
+  std::string vertexShaderSource =
+      readShaderFromFile("../shaders/vertex_shader.glsl");
+  GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
 
   // Check compile status
   glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -74,21 +51,20 @@ int main() {
   }
 
   // Create fragment shader
-  GLuint fragmentShaderOrange;
-  fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShaderOrange, 1, &fragmentShaderSource1, NULL);
-  glCompileShader(fragmentShaderOrange);
+  std::string fragmentShaderOrangeSource =
+      readShaderFromFile("../shaders/fragment_shader_orange.glsl");
+  GLuint fragmentShaderOrange =
+      compileShader(GL_FRAGMENT_SHADER, fragmentShaderOrangeSource);
 
   glGetShaderiv(fragmentShaderOrange, GL_COMPILE_STATUS, &success);
 
   // Create fragment shader RED
-  GLuint fragmentShaderRed;
-  fragmentShaderRed = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShaderRed, 1, &fragmentShaderSource2, NULL);
-  glCompileShader(fragmentShaderRed);
+  std::string fragmentShaderRedSource =
+      readShaderFromFile("../shaders/fragment_shader_red.glsl");
+  GLuint fragmentShaderRed =
+      compileShader(GL_FRAGMENT_SHADER, fragmentShaderRedSource);
 
   glGetShaderiv(fragmentShaderRed, GL_COMPILE_STATUS, &success);
-
 
   if (!success) {
     glGetShaderInfoLog(fragmentShaderOrange, 512, NULL, infoLog);
@@ -242,7 +218,7 @@ int main() {
     glUseProgram(shaderProgramRed);
     // Draw 2nd triangle
     glBindVertexArray(VAOs[1]);
-    glDrawArrays(GL_TRIANGLES, 0, 3); 
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
