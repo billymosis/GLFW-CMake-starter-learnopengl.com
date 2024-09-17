@@ -18,7 +18,6 @@ std::string readShaderFromFile(const std::string &shaderPath) {
   std::stringstream shaderStream;
   shaderStream << shaderFile.rdbuf();
   shaderFile.close();
-  std::cout << shaderStream.str() << std::endl;
   return shaderStream.str();
 }
 
