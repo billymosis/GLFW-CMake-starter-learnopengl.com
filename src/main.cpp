@@ -110,19 +110,10 @@ int main() {
 
   // clang-format off
   float vertices1[] = {
-    -1.0f, -0.5f, 0.0f,
-    0.0f, -0.5f, 0.0f,
-    -0.5f,  0.5f, 0.0f,
-
-    0.0f, -0.5f, 0.0f,
-    1.0f, -0.5f, 0.0f,
-    0.5f,  0.5f, 0.0f,
-  };
-
-  float vertices2[] = {
-    0.0f, -0.5f, 0.0f,
-    1.0f, -0.5f, 0.0f,
-    0.5f,  0.5f, 0.0f,
+    // Positions              Colors
+    -1.0f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
+    0.0f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f
   };
   // clang-format on
 
@@ -174,19 +165,18 @@ int main() {
    just 0.
    *
    **/
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
 
   //  Zero => Refers to the same attribute index 0 specified in
   //  glVertexAttribPointer(). It enables the vertex attribute at this location
   //  so that the data will be passed to the vertex shader.
   glEnableVertexAttribArray(0);
 
-  // SECOND TRIANGLE
-  glBindVertexArray(VAOs[1]);
-  glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
+  // set the new color attribute
+  // last argument tells that we need offset by 3x4 bytes
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   // note that this is allowed, the call to glVertexAttribPointer registered VBO
   // as the vertex attribute's bound vertex buffer object so afterwards we can
@@ -206,15 +196,9 @@ int main() {
     // Rendering commands
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    float timeValue = glfwGetTime();
-    float greenValue = (std::sin(timeValue) / 2.0f) + 0.5f;
-    int vertexColorLocation =
-        glGetUniformLocation(shaderProgramOrange, "ourColor");
 
     // Draw triangle
     glUseProgram(shaderProgramOrange);
-
-    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
     // Draw 1st triangle
     // seeing as we only have a single VAO there's no need to bind it every
@@ -222,10 +206,6 @@ int main() {
     glBindVertexArray(VAOs[0]);
     glDrawArrays(GL_TRIANGLES, 0, 3); // set the count to 6 since we're drawing
                                       // 6 vertices now (2 triangles); not 3!
-    glUseProgram(shaderProgramRed);
-    // Draw 2nd triangle
-    glBindVertexArray(VAOs[1]);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
