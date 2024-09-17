@@ -38,9 +38,9 @@ int main() {
   // clang-format off
   float vertices1[] = {
     // Positions              Colors
-    -1.0f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
-    0.0f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f
+    -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
+    0.5f, -0.5f, 0.0f,      0.0f, 1.0f, 0.0f,
+    0.0f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f
   };
   // clang-format on
 
