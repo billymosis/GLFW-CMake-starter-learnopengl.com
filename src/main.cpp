@@ -126,6 +126,7 @@ int main() {
 
     // Draw triangle
     ourShader.use();
+    ourShader.setFloat("myValue", 0.7f);
 
     // Draw 1st triangle
     // seeing as we only have a single VAO there's no need to bind it every
