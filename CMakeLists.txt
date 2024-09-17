@@ -36,6 +36,7 @@ set(GLFW-CMAKE-STARTER-SRC
     src/main.cpp
     src/shader.cpp
     src/shader.hpp
+    src/stb_image.h
 )
 
 # Create the executable
