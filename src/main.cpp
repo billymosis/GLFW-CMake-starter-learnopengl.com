@@ -134,9 +134,11 @@ int main() {
   glBindVertexArray(0);
 
   // Generating a texture
-  GLuint texture;
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  GLuint texture[2];
+  glGenTextures(1, &texture[0]);
+  glGenTextures(2, &texture[0]);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture[0]);
 
   // set the texture wrapping/filtering options (on the currently bound texture
   // object)
@@ -146,9 +148,19 @@ int main() {
                   GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture[1]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   // Load Texture
 
+  stbi_set_flip_vertically_on_load(true);
   // nrChannels => Number of Color Channels
+  glBindTexture(GL_TEXTURE_2D, texture[0]);
   int width, height, nrChannels;
   unsigned char *data =
       stbi_load("../assets/container.jpg", &width, &height, &nrChannels, 0);
@@ -160,7 +172,27 @@ int main() {
     std::cout << "Failed to load texture" << std::endl;
   }
 
+  glBindTexture(GL_TEXTURE_2D, texture[1]);
+  data =
+      stbi_load("../assets/awesomeface.png", &width, &height, &nrChannels, 0);
+  if (data) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+    std::cout << "Failed to load texture" << std::endl;
+  }
+
   stbi_image_free(data);
+  // tell opengl for each sampler to which texture unit it belongs to (only has
+  // to be done once)
+  // -------------------------------------------------------------------------------------------
+  ourShader.use(); // don't forget to activate/use the shader before setting
+                   // uniforms!
+  // either set it manually like so:
+  glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+  // or set it via the texture class
+  ourShader.setInt("texture2", 1);
 
   while (!glfwWindowShouldClose(window)) {
     // Input
@@ -171,7 +203,8 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Bind texture
-    glBindTexture(GL_TEXTURE_2D, texture);
+    // glBindTexture(GL_TEXTURE_2D, texture[0]);
+    // glBindTexture(GL_TEXTURE_2D, texture[1]);
 
     // Draw triangle
     ourShader.use();
