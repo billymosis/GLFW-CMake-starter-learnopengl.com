@@ -14,6 +14,12 @@ set(GLFW_INSTALL OFF CACHE BOOL "GLFW lib only")
 # Include GLFW
 add_subdirectory(external/glfw)
 
+# Set GLM options
+set(GLM_TEST_ENABLE OFF CACHE BOOL "GLM no test")
+
+# Include GLM
+add_subdirectory(external/glm)
+
 # Add GLAD
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/external/glad/src/glad.c")
@@ -44,7 +50,7 @@ set(GLFW-CMAKE-STARTER-SRC
 add_executable(GLFW-CMake-starter ${GLFW-CMAKE-STARTER-SRC} ${GLAD_SOURCES})
 
 # Link libraries
-target_link_libraries(GLFW-CMake-starter ${OPENGL_LIBRARIES} glfw)
+target_link_libraries(GLFW-CMake-starter ${OPENGL_LIBRARIES} glfw glm)
 
 # Set Visual Studio startup project
 if(MSVC)

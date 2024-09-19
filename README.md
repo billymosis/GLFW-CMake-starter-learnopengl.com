@@ -1,6 +1,6 @@
 # GLFW CMake Starter
 
-This project provides a simple starter template using **CMake** to set up a cross-platform application with **GLFW**. The project runs on Windows, Linux, and macOS, and includes an external setup for **GLAD** to handle OpenGL function loading.
+This project provides a simple starter template using **CMake** to set up a cross-platform application with **GLFW**. The project runs on Windows, Linux, and macOS, and includes an external setup for **GLAD** to handle OpenGL function loading and also GLM for math.
 
 This repository is a fork of [Juliette Foucaut's GLFW-CMake-Starter](https://github.com/juliettef/GLFW-CMake-starter) and uses **GLAD** from [glad.dav1d.de](https://glad.dav1d.de/) to meet OpenGL version 3.3 specifications required for projects from [LearnOpenGL.com](https://learnopengl.com).
 
@@ -10,6 +10,8 @@ This repository is a fork of [Juliette Foucaut's GLFW-CMake-Starter](https://git
   Example screenshot of GLAD configuration:
   ![GLAD 3.3 Screenshot](./screenshot/screenshot-glad.png)
 
+- GLM version 0.9.8.5 download at [glm.g-truc.net](https://glm.g-truc.net/0.9.8)
+
 ## Resources
 - **GLFW official site**: [glfw.org](https://www.glfw.org/)  
 - **GLFW GitHub repo**: [github.com/glfw/glfw](https://github.com/glfw/glfw)
@@ -17,6 +19,7 @@ This repository is a fork of [Juliette Foucaut's GLFW-CMake-Starter](https://git
 ## Project Structure
 
 Make sure to place the downloaded **GLAD** files inside the `external/glad` folder as shown below. The `external` directory contains third-party dependencies like GLAD and GLFW.
+For the math part also place the downloaded glm to `external/glm`.
 
 ```
 ├───external
