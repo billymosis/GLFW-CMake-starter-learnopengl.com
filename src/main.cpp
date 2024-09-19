@@ -200,11 +200,6 @@ int main() {
   // or set it via the texture class
   ourShader.setInt("texture2", 1);
 
-  glm::mat4 trans = glm::mat4(1.0f);
-  trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
-  trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-  ourShader.setMat4("transform", trans);
-
   while (!glfwWindowShouldClose(window)) {
     // Input
     processInput(window);
@@ -216,6 +211,12 @@ int main() {
     // Bind texture
     // glBindTexture(GL_TEXTURE_2D, texture[0]);
     // glBindTexture(GL_TEXTURE_2D, texture[1]);
+
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    trans =
+        glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    ourShader.setMat4("transform", trans);
 
     // Draw triangle
     ourShader.use();
