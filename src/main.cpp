@@ -229,6 +229,14 @@ int main() {
                    0); // set the count to 6 since we're drawing
                        // 6 vertices now (2 triangles); not 3!
 
+    trans = glm::mat4(1.0f); // reset it to identity matrix
+    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+    float scaleAmount = static_cast<float>(sin(glfwGetTime()));
+    trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+    ourShader.setMat4("transform", trans);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT,
+                   0); 
+
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
     glfwPollEvents();
