@@ -17,7 +17,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
+
+void processInput(GLFWwindow *window, glm::vec3 &cameraPos,
+                  glm::vec3 &cameraFront, glm::vec3 &cameraUp, float deltaTime);
 
 int main() {
   std::cout << "Hello World!" << std::endl;
@@ -242,9 +244,18 @@ int main() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   glEnable(GL_DEPTH_TEST);
+  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+  glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+  glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+  float deltaTime = 0.0f;
+  float lastFrame = 0.0f;
   while (!glfwWindowShouldClose(window)) {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
     // Input
-    processInput(window);
+    processInput(window, cameraPos, cameraFront, cameraUp, deltaTime);
 
     // Rendering commands
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -255,20 +266,8 @@ int main() {
     // glBindTexture(GL_TEXTURE_2D, texture[0]);
     // glBindTexture(GL_TEXTURE_2D, texture[1]);
 
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -6.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    const float radius = 10.0f;
-    const float t = glfwGetTime();
-    float camX = sin(t) * radius;
-    float camZ = cos(t) * radius;
-    std::cout << t << " " << camX << std::endl;
-
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, cameraPos);
-    view = glm::lookAt(glm::vec3(camX, 0.0, camZ), cameraTarget, up);
+    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     ourShader.setMat4("view", view);
 
     // INFO: currently we set the projection matrix each frame, but since the
@@ -323,8 +322,20 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow *window) {
+void processInput(GLFWwindow *window, glm::vec3 &cameraPos,
+                  glm::vec3 &cameraFront, glm::vec3 &cameraUp, float deltaTime) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
-}
+  const float cameraSpeed = 2.5f * deltaTime;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    cameraPos += cameraSpeed * cameraFront;
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    cameraPos -= cameraSpeed * cameraFront;
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    cameraPos -=
+        glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    cameraPos +=
+        glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+};
