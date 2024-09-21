@@ -1,5 +1,4 @@
 // clang-format off
-#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
@@ -9,7 +8,6 @@
 #include "glm/detail/type_mat.hpp"
 #include "glm/detail/type_vec.hpp"
 #include <iostream>
-#include <iterator>
 #define STB_IMAGE_IMPLEMENTATION
 #include "./stb_image.h"
 #include <glm/glm.hpp>
@@ -21,16 +19,33 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window, glm::vec3 &cameraPos,
                   glm::vec3 &cameraFront, glm::vec3 &cameraUp, float deltaTime);
 
+void mouse_callback(GLFWwindow *window, double xpos, double ypos);
+
+const float window_height = 800.0f;
+const float window_width = 600.0f;
+
+// NOTE: Using global variable is shit!
+// Bear with me, focusing on open GL exercise!
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+double lastX = window_height / 2;
+double lastY = window_width / 2;
+double yaw, pitch;
+bool firstMouse = false;
+
 int main() {
-  std::cout << "Hello World!" << std::endl;
-  // GLFW initialize and configure
+  std::cout << "Hello World!" << std::endl; // GLFW initialize and configure
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // GLFW window creation
-  GLFWwindow *window = glfwCreateWindow(800, 600, "Learn OPENGL", NULL, NULL);
+  GLFWwindow *window =
+      glfwCreateWindow(window_height, window_width, "Learn OPENGL", NULL, NULL);
   if (window == NULL) {
     std::cout << "Failed to create GLFW Window" << std::endl;
     glfwTerminate();
@@ -244,11 +259,8 @@ int main() {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   glEnable(GL_DEPTH_TEST);
-  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-  glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-  glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-  float deltaTime = 0.0f;
-  float lastFrame = 0.0f;
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  glfwSetCursorPosCallback(window, mouse_callback);
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
@@ -274,8 +286,8 @@ int main() {
     // projection matrix rarely changes it's often best practice to set it
     // outside the main loop only once.
     glm::mat4 projection;
-    projection =
-        glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f),
+                                  (window_height / window_width), 0.1f, 100.0f);
     ourShader.setMat4("projection", projection);
 
     // Draw triangle
@@ -323,7 +335,8 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 void processInput(GLFWwindow *window, glm::vec3 &cameraPos,
-                  glm::vec3 &cameraFront, glm::vec3 &cameraUp, float deltaTime) {
+                  glm::vec3 &cameraFront, glm::vec3 &cameraUp,
+                  float deltaTime) {
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
     glfwSetWindowShouldClose(window, true);
   }
@@ -339,3 +352,34 @@ void processInput(GLFWwindow *window, glm::vec3 &cameraPos,
     cameraPos +=
         glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 };
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+  if (firstMouse) // initially set to true
+  {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+  float xoffset = xpos - lastX;
+  float yoffset = lastY - ypos;
+  lastX = xpos;
+  lastY = ypos;
+
+  float sensitivity = 0.1f;
+  xoffset *= sensitivity;
+  yoffset *= sensitivity;
+
+  yaw += xoffset;
+  pitch += yoffset;
+
+  if (pitch > 89.0f)
+    pitch = 89.0f;
+  if (pitch < -89.0f)
+    pitch = -89.0f;
+
+  glm::vec3 direction;
+  direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+  direction.y = sin(glm::radians(pitch));
+  direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+  cameraFront = glm::normalize(direction);
+}
