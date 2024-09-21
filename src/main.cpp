@@ -25,14 +25,18 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 const float window_height = 800.0f;
 const float window_width = 600.0f;
 
-// NOTE: Using global variable is shit!
-// Bear with me, focusing on open GL exercise!
+// Timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
+// Camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 double lastX = window_height / 2.0f;
 double lastY = window_width / 2.0f;
 bool firstMouse = false;
-Camera camera;
+
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 int main() {
   std::cout << "Hello World!" << std::endl; // GLFW initialize and configure
@@ -58,273 +62,157 @@ int main() {
     return -1;
   }
 
-  Shader ourShader = Shader("../shaders/vertex_shader.glsl",
-                            "../shaders/fragment_shader_orange.glsl");
-
-  // clang-format off
-  float vertices1[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-  };
-  unsigned int indices[] = {  
-    0, 1, 3, // first triangle
-    1, 2, 3  // second triangle
-  };
-  // clang-format on
-
-  GLuint VBOs[2], VAOs[2], EBO;
-  glGenVertexArrays(2, VAOs);
-  glGenBuffers(2, VBOs);
-  glGenBuffers(1, &EBO);
-
-  // FIRST TRIANGLE
-  // bind the Vertex Array Object first, then bind and set vertex buffer(s), and
-  // then configure vertex attributes(s).
-  glBindVertexArray(VAOs[0]);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
-  // sizeof vertices triangle 3x3 = 9 x 4 byte = 36 byte
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
-
-  /**
-   * We need to tell opengl how to intepret the vertex data before rendering
-   * Look at the vertex buffer data image on the pdf or site learnopengl.com
-   *
-   *
-   * EXPLANATION
-   * 1. First Args 0
-   * This is specify which vertex attribute we want to configure.
-   * We already set on the vertex shader source that the layout location = 0.
-   * This sets the location of the vertex attribute to 0 and since we want to
-   * pass data to this vertex attribute, we pass in 0.
-   *
-   * 2. Second Args 3
-   * Specify the size of the vertex attribute.
-   * The vertex attribute is a vec3 so it is composed of 3 values.
-   *
-   * 3. The type of the vertex data, commonly float.
-   *
-   * 4. Specify if the data to be normalized or not.
-   * if we input integer, the integer will be normalized to 0 or 1 when
-   converted to float.
-   * We don't want this since irrelevant.
-   *
-   * 5. Stride, see the image.
-   * This tells OpenGL the spacing between consecutive vertex attributes in the
-   * buffer. Since each vertex consists of 3 floats (one for x, one for y, and
-   * one for z), the stride is 3 * sizeof(float) bytes (each float is typically
-   * 4 bytes, so stride is 12 bytes).
-   *
-   * 6. type of void* need a weird cast.
-   * This is the offset of where the position data begins in buffer.
-   * Since the position data is at the start of the data array this values is
-   just 0.
-   *
-   **/
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-
-  //  Zero => Refers to the same attribute index 0 specified in
-  //  glVertexAttribPointer(). It enables the vertex attribute at this location
-  //  so that the data will be passed to the vertex shader.
-  glEnableVertexAttribArray(0);
-
-  // set texture attribute
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
-
-  // note that this is allowed, the call to glVertexAttribPointer registered VBO
-  // as the vertex attribute's bound vertex buffer object so afterwards we can
-  // safely unbind
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  // You can unbind the VAO afterwards so other VAO calls won't accidentally
-  // modify this VAO, but this rarely happens. Modifying other VAOs requires a
-  // call to glBindVertexArray anyways so we generally don't unbind VAOs (nor
-  // VBOs) when it's not directly necessary.
-  glBindVertexArray(0);
-
-  // Generating a texture
-  GLuint texture[2];
-  glGenTextures(1, &texture[0]);
-  glGenTextures(2, &texture[0]);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture[0]);
-
-  // set the texture wrapping/filtering options (on the currently bound texture
-  // object)
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, texture[1]);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                  GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // Load Texture
-
-  stbi_set_flip_vertically_on_load(true);
-  // nrChannels => Number of Color Channels
-  glBindTexture(GL_TEXTURE_2D, texture[0]);
-  int width, height, nrChannels;
-  unsigned char *data =
-      stbi_load("../assets/container.jpg", &width, &height, &nrChannels, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-
-  glBindTexture(GL_TEXTURE_2D, texture[1]);
-  data =
-      stbi_load("../assets/awesomeface.png", &width, &height, &nrChannels, 0);
-  if (data) {
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  } else {
-    std::cout << "Failed to load texture" << std::endl;
-  }
-
-  stbi_image_free(data);
-  // tell opengl for each sampler to which texture unit it belongs to (only has
-  // to be done once)
-  // -------------------------------------------------------------------------------------------
-  ourShader.use(); // don't forget to activate/use the shader before setting
-                   // uniforms!
-  // either set it manually like so:
-  glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
-  // or set it via the texture class
-  ourShader.setInt("texture2", 1);
-
-  // 10 Cubes
-  glm::vec3 cubePositions[] = {
-      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
-      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
-
+  // configure global opengl state
+  // -----------------------------
   glEnable(GL_DEPTH_TEST);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
+
+  Shader lightingShader("../shaders/lighting_ball_v.glsl",
+                        "../shaders/lighting_ball_f.glsl");
+  Shader lightCubeShader("../shaders/lighting_cube_v.glsl",
+                         "../shaders/lighting_cube_f.glsl");
+
+  // clang-format off
+  float vertices[] = {
+    -0.5f, -0.5f, -0.5f, 
+    0.5f, -0.5f, -0.5f,  
+    0.5f,  0.5f, -0.5f,  
+    0.5f,  0.5f, -0.5f,  
+    -0.5f,  0.5f, -0.5f, 
+    -0.5f, -0.5f, -0.5f, 
+
+    -0.5f, -0.5f,  0.5f, 
+    0.5f, -0.5f,  0.5f,  
+    0.5f,  0.5f,  0.5f,  
+    0.5f,  0.5f,  0.5f,  
+    -0.5f,  0.5f,  0.5f, 
+    -0.5f, -0.5f,  0.5f, 
+
+    -0.5f,  0.5f,  0.5f, 
+    -0.5f,  0.5f, -0.5f, 
+    -0.5f, -0.5f, -0.5f, 
+    -0.5f, -0.5f, -0.5f, 
+    -0.5f, -0.5f,  0.5f, 
+    -0.5f,  0.5f,  0.5f, 
+
+    0.5f,  0.5f,  0.5f,  
+    0.5f,  0.5f, -0.5f,  
+    0.5f, -0.5f, -0.5f,  
+    0.5f, -0.5f, -0.5f,  
+    0.5f, -0.5f,  0.5f,  
+    0.5f,  0.5f,  0.5f,  
+
+    -0.5f, -0.5f, -0.5f, 
+    0.5f, -0.5f, -0.5f,  
+    0.5f, -0.5f,  0.5f,  
+    0.5f, -0.5f,  0.5f,  
+    -0.5f, -0.5f,  0.5f, 
+    -0.5f, -0.5f, -0.5f, 
+
+    -0.5f,  0.5f, -0.5f, 
+    0.5f,  0.5f, -0.5f,  
+    0.5f,  0.5f,  0.5f,  
+    0.5f,  0.5f,  0.5f,  
+    -0.5f,  0.5f,  0.5f, 
+    -0.5f,  0.5f, -0.5f, 
+  };
+  // clang-format on
+
+  unsigned int VBO, cubeVAO;
+  glGenVertexArrays(1, &cubeVAO);
+  glGenBuffers(1, &VBO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glBindVertexArray(cubeVAO);
+
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  // second, configure the light's VAO (VBO stays the same; the vertices are the
+  // same for the light object which is also a 3D cube)
+  unsigned int lightCubeVAO;
+  glGenVertexArrays(1, &lightCubeVAO);
+  glBindVertexArray(lightCubeVAO);
+
+  // we only need to bind to the VBO (to link it with glVertexAttribPointer), no
+  // need to fill it; the VBO's data already contains all we need (it's already
+  // bound, but we do it again for educational purposes)
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+
+  // render loop
+  // -----------
   while (!glfwWindowShouldClose(window)) {
-    float currentFrame = glfwGetTime();
+    // per-frame time logic
+    // --------------------
+    float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    // Input
+    // input
+    // -----
     processInput(window, deltaTime);
 
-    // Rendering commands
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    // Bitwise or operator
+    // render
+    // ------
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Bind texture
-    // glBindTexture(GL_TEXTURE_2D, texture[0]);
-    // glBindTexture(GL_TEXTURE_2D, texture[1]);
+    // be sure to activate shader when setting uniforms/drawing objects
+    lightingShader.use();
+    lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+    lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
-    glm::mat4 view = glm::mat4(1.0f);
-    view = camera.GetViewMatrix();
-    ourShader.setMat4("view", view);
+    // view/projection transformations
+    glm::mat4 projection = glm::perspective(
+        glm::radians(camera.Zoom), (float)window_width / (float)window_height,
+        0.1f, 100.0f);
+    glm::mat4 view = camera.GetViewMatrix();
+    lightingShader.setMat4("projection", projection);
+    lightingShader.setMat4("view", view);
 
-    // INFO: currently we set the projection matrix each frame, but since the
-    // projection matrix rarely changes it's often best practice to set it
-    // outside the main loop only once.
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(camera.Zoom),
-                                  (window_height / window_width), 0.1f, 100.0f);
-    ourShader.setMat4("projection", projection);
+    // world transformation
+    glm::mat4 model = glm::mat4(1.0f);
+    lightingShader.setMat4("model", model);
 
-    // Draw triangle
-    ourShader.use();
+    // render the cube
+    glBindVertexArray(cubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    // Draw 1st triangle
-    // seeing as we only have a single VAO there's no need to bind it every
-    // time, but we'll do so to keep things a bit more organized
-    glBindVertexArray(VAOs[0]);
-    for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3);
-         i += 1) {
-      glm::mat4 model = glm::mat4(1.0f);
-      model = glm::translate(model, cubePositions[i]);
-      float angle = 20.0f * i;
-      if (i % 3 == 0) {
-        angle = glfwGetTime() * 25.0f;
-      }
-      model =
-          glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-      ourShader.setMat4("model", model);
+    // also draw the lamp object
+    lightCubeShader.use();
+    lightCubeShader.setMat4("projection", projection);
+    lightCubeShader.setMat4("view", view);
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, lightPos);
+    model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+    lightCubeShader.setMat4("model", model);
 
-      glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    glBindVertexArray(lightCubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
-    // check and call envents and swap the buffers
+    // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved
+    // etc.)
+    // -------------------------------------------------------------------------------
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
   // optional: de-allocate all resources once they've outlived their purpose:
   // ------------------------------------------------------------------------
-  glDeleteVertexArrays(2, VAOs);
-  glDeleteBuffers(2, VBOs);
-  glDeleteBuffers(1, &EBO);
+  glDeleteVertexArrays(1, &cubeVAO);
+  glDeleteVertexArrays(1, &lightCubeVAO);
+  glDeleteBuffers(1, &VBO);
 
   // glfw: terminate, clearing all previously allocated GLFW resources.
   // ------------------------------------------------------------------
-
   glfwTerminate();
   return 0;
 }

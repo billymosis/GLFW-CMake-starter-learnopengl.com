@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glm/detail/type_mat.hpp"
+#include "glm/detail/type_vec.hpp"
 #include <glad/glad.h>
 #include <string>
 
@@ -17,4 +18,6 @@ public:
   void setInt(const std::string &name, int value) const;
   void setFloat(const std::string &name, float value) const;
   void setMat4(const std::string &name, glm::mat4 &value) const;
+  void setVec3(const std::string &name, const glm::vec3 &value) const;
+  void setVec3(const std::string &name, float x, float y, float z) const;
 };
