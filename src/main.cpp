@@ -7,6 +7,7 @@
 #include "glm/detail/type_mat.hpp"
 #include "glm/detail/type_vec.hpp"
 #include <iostream>
+#include <iterator>
 #define STB_IMAGE_IMPLEMENTATION
 #include "./stb_image.h"
 #include <glm/glm.hpp>
@@ -230,6 +231,14 @@ int main() {
   // or set it via the texture class
   ourShader.setInt("texture2", 1);
 
+  // 10 Cubes
+  glm::vec3 cubePositions[] = {
+      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
+      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
+      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
+
   glEnable(GL_DEPTH_TEST);
   while (!glfwWindowShouldClose(window)) {
     // Input
@@ -244,19 +253,15 @@ int main() {
     // glBindTexture(GL_TEXTURE_2D, texture[0]);
     // glBindTexture(GL_TEXTURE_2D, texture[1]);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    model =
-        glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
-                        glm::vec3(0.5f, 1.0f, 0.0f));
-    ourShader.setMat4("model", model);
-
     glm::mat4 view = glm::mat4(1.0f);
     // note that we're translating the scene in the reverse direction of where
     // we want to move
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
     ourShader.setMat4("view", view);
 
+    // INFO: currently we set the projection matrix each frame, but since the
+    // projection matrix rarely changes it's often best practice to set it
+    // outside the main loop only once.
     glm::mat4 projection;
     projection =
         glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -269,7 +274,17 @@ int main() {
     // seeing as we only have a single VAO there's no need to bind it every
     // time, but we'll do so to keep things a bit more organized
     glBindVertexArray(VAOs[0]);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    for (unsigned int i = 0; i < sizeof(cubePositions) / sizeof(glm::vec3);
+         i += 1) {
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, cubePositions[i]);
+      float angle = 20.0f * i;
+      model =
+          glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+      ourShader.setMat4("model", model);
+
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
 
     // check and call envents and swap the buffers
     glfwSwapBuffers(window);
