@@ -76,51 +76,51 @@ int main() {
 
   // clang-format off
   float vertices[] = {
-    -0.5f, -0.5f, -0.5f, 
-    0.5f, -0.5f, -0.5f,  
-    0.5f,  0.5f, -0.5f,  
-    0.5f,  0.5f, -0.5f,  
-    -0.5f,  0.5f, -0.5f, 
-    -0.5f, -0.5f, -0.5f, 
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
 
-    -0.5f, -0.5f,  0.5f, 
-    0.5f, -0.5f,  0.5f,  
-    0.5f,  0.5f,  0.5f,  
-    0.5f,  0.5f,  0.5f,  
-    -0.5f,  0.5f,  0.5f, 
-    -0.5f, -0.5f,  0.5f, 
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f,  0.5f, 
-    -0.5f,  0.5f, -0.5f, 
-    -0.5f, -0.5f, -0.5f, 
-    -0.5f, -0.5f, -0.5f, 
-    -0.5f, -0.5f,  0.5f, 
-    -0.5f,  0.5f,  0.5f, 
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-    0.5f,  0.5f,  0.5f,  
-    0.5f,  0.5f, -0.5f,  
-    0.5f, -0.5f, -0.5f,  
-    0.5f, -0.5f, -0.5f,  
-    0.5f, -0.5f,  0.5f,  
-    0.5f,  0.5f,  0.5f,  
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-    -0.5f, -0.5f, -0.5f, 
-    0.5f, -0.5f, -0.5f,  
-    0.5f, -0.5f,  0.5f,  
-    0.5f, -0.5f,  0.5f,  
-    -0.5f, -0.5f,  0.5f, 
-    -0.5f, -0.5f, -0.5f, 
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-    -0.5f,  0.5f, -0.5f, 
-    0.5f,  0.5f, -0.5f,  
-    0.5f,  0.5f,  0.5f,  
-    0.5f,  0.5f,  0.5f,  
-    -0.5f,  0.5f,  0.5f, 
-    -0.5f,  0.5f, -0.5f, 
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
   };
   // clang-format on
 
-  unsigned int VBO, cubeVAO;
+  GLuint VBO, cubeVAO;
   glGenVertexArrays(1, &cubeVAO);
   glGenBuffers(1, &VBO);
 
@@ -130,8 +130,13 @@ int main() {
   glBindVertexArray(cubeVAO);
 
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
+
+  // normal attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   // second, configure the light's VAO (VBO stays the same; the vertices are the
   // same for the light object which is also a 3D cube)
@@ -144,7 +149,7 @@ int main() {
   // bound, but we do it again for educational purposes)
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
   // render loop
@@ -169,6 +174,7 @@ int main() {
     lightingShader.use();
     lightingShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
     lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    lightingShader.setVec3("lightPos", lightPos);
 
     // view/projection transformations
     glm::mat4 projection = glm::perspective(
