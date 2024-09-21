@@ -1,8 +1,10 @@
 // clang-format off
+#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
 #include "./shader.hpp"
+#include "glm/detail/func_geometric.hpp"
 #include "glm/detail/func_trigonometric.hpp"
 #include "glm/detail/type_mat.hpp"
 #include "glm/detail/type_vec.hpp"
@@ -108,9 +110,9 @@ int main() {
   // sizeof vertices triangle 3x3 = 9 x 4 byte = 36 byte
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
 
-  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-  //              GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+               GL_STATIC_DRAW);
 
   /**
    * We need to tell opengl how to intepret the vertex data before rendering
@@ -253,10 +255,20 @@ int main() {
     // glBindTexture(GL_TEXTURE_2D, texture[0]);
     // glBindTexture(GL_TEXTURE_2D, texture[1]);
 
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -6.0f);
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    const float radius = 10.0f;
+    const float t = glfwGetTime();
+    float camX = sin(t) * radius;
+    float camZ = cos(t) * radius;
+    std::cout << t << " " << camX << std::endl;
+
     glm::mat4 view = glm::mat4(1.0f);
-    // note that we're translating the scene in the reverse direction of where
-    // we want to move
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    view = glm::translate(view, cameraPos);
+    view = glm::lookAt(glm::vec3(camX, 0.0, camZ), cameraTarget, up);
     ourShader.setMat4("view", view);
 
     // INFO: currently we set the projection matrix each frame, but since the
