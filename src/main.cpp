@@ -21,6 +21,8 @@ void processInput(GLFWwindow *window, glm::vec3 &cameraPos,
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+
 const float window_height = 800.0f;
 const float window_width = 600.0f;
 
@@ -35,6 +37,7 @@ double lastX = window_height / 2;
 double lastY = window_width / 2;
 double yaw, pitch;
 bool firstMouse = false;
+float fov = 45.0f;
 
 int main() {
   std::cout << "Hello World!" << std::endl; // GLFW initialize and configure
@@ -261,6 +264,7 @@ int main() {
   glEnable(GL_DEPTH_TEST);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetScrollCallback(window, scroll_callback);
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
@@ -286,7 +290,7 @@ int main() {
     // projection matrix rarely changes it's often best practice to set it
     // outside the main loop only once.
     glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f),
+    projection = glm::perspective(glm::radians(fov),
                                   (window_height / window_width), 0.1f, 100.0f);
     ourShader.setMat4("projection", projection);
 
@@ -382,4 +386,13 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   direction.y = sin(glm::radians(pitch));
   direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
   cameraFront = glm::normalize(direction);
+}
+
+void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+  std::cout << yoffset << std::endl;
+  fov -= (float)yoffset;
+  if (fov < 1.0f)
+    fov = 1.0f;
+  if (fov > 45.0f)
+    fov = 45.0f;
 }
