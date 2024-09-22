@@ -1,4 +1,5 @@
 // clang-format off
+#include <cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
@@ -36,7 +37,7 @@ double lastY = window_width / 2.0f;
 bool firstMouse = false;
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(0.0f, 0.25f, 0.0f);
 
 int main() {
   std::cout << "Hello World!" << std::endl; // GLFW initialize and configure
@@ -167,6 +168,10 @@ int main() {
     // ------
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // orbit
+    lightPos.x = sin(glfwGetTime());
+    lightPos.z = cos(glfwGetTime());
 
     // be sure to activate shader when setting uniforms/drawing objects
     lightingShader.use();
