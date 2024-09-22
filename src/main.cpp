@@ -68,11 +68,9 @@ int main() {
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
-
-  Shader lightingShader("../shaders/lighting_ball_v.glsl",
-                        "../shaders/lighting_ball_f.glsl");
-  Shader lightCubeShader("../shaders/lighting_cube_v.glsl",
-                         "../shaders/lighting_cube_f.glsl");
+  Shader lightingShader("../shaders/cube_v.glsl", "../shaders/cube_f.glsl");
+  Shader lightCubeShader("../shaders/lamp_cube_v.glsl",
+                         "../shaders/lamp_cube_f.glsl");
 
   // clang-format off
   float vertices[] = {

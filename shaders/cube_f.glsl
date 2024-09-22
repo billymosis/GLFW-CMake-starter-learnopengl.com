@@ -17,9 +17,11 @@ void main()
     // diffuse
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
+    // learn dot product in here https://immersivemath.com/ila/ch03_dotproduct/ch03.html
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = diff * lightColor;
 
+    // vec3 result = ambient * objectColor;
     vec3 result = (ambient + diffuse) * objectColor;
     FragColor = vec4(result, 1.0);
 }
