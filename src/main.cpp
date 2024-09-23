@@ -162,9 +162,14 @@ int main() {
 
   // texture
   unsigned int diffuseMap = loadTexture("../assets/container2.png");
+  unsigned int specularMap = loadTexture("../assets/container2_specular.png");
   lightingShader.use();
   lightingShader.setInt("material.diffuse", 0);
+  lightingShader.setInt("material.specular", 1);
 
+int maxTextureUnits;
+glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
 
   // render loop
   // -----------
@@ -200,7 +205,7 @@ int main() {
     // lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3));
     glm::vec3 diffuseColor =
         lightColor * glm::vec3(0.5f); // decrease the influence
-    glm::vec3 ambientColor = diffuseColor * glm::vec3(1.0f); // low influence
+    glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
     lightingShader.setVec3("light.ambient", ambientColor);
     lightingShader.setVec3("light.diffuse", diffuseColor);
     lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
@@ -224,6 +229,13 @@ int main() {
     // world transformation
     glm::mat4 model = glm::mat4(1.0f);
     lightingShader.setMat4("model", model);
+
+    // bind diffuse map
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuseMap);
+    // bind specular map
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specularMap);
 
     // render the cube
     glBindVertexArray(cubeVAO);
