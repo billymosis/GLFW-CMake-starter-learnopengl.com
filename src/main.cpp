@@ -203,6 +203,7 @@ int main() {
   ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
   float speedFactor = 0.0f;
+  float lampOrbitRadius = 1.0f;
 
   // multiple containers
   glm::vec3 cubePositions[] = {
@@ -241,13 +242,16 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // orbit
-    lightPos.x = sin(glfwGetTime() * speedFactor);
-    lightPos.z = cos(glfwGetTime() * speedFactor);
+    lightPos.x = sin(glfwGetTime() * speedFactor) * lampOrbitRadius;
+    lightPos.z = cos(glfwGetTime() * speedFactor) * lampOrbitRadius;
 
     // be sure to activate shader when setting uniforms/drawing objects
     lightingShader.use();
     lightingShader.setVec3("viewPos", camera.Position);
-    lightingShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f);
+    lightingShader.setVec3("light.position", lightPos);
+    lightingShader.setFloat("light.constant", 1.0f);
+    lightingShader.setFloat("light.linear", 0.09f);
+    lightingShader.setFloat("light.quadratic", 0.032f);
 
     // light properties
     glm::vec3 lightColor = glm::vec3(1.0f);
@@ -317,6 +321,7 @@ int main() {
       ImGui::Begin("SETTINGS");
       ImGui::Checkbox("Enable Mouse", &enableMouse);
       ImGui::SliderFloat("speed", &speedFactor, 0.0f, 10.0f);
+      ImGui::SliderFloat("radius", &lampOrbitRadius, 0.0f, 10.0f);
       ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                   1000.0f / io.Framerate, io.Framerate);
       ImGui::End();
