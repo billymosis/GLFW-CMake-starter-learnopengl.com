@@ -20,6 +20,20 @@ set(GLM_TEST_ENABLE OFF CACHE BOOL "GLM no test")
 # Include GLM
 add_subdirectory(external/glm)
 
+# Include imgui 
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui)
+include_directories(${IMGUI_DIR} ${IMGUI_DIR}/backends)
+
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
 # Add GLAD
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/external/glad/src/glad.c")
@@ -43,6 +57,7 @@ set(GLFW-CMAKE-STARTER-SRC
     src/shader.cpp
     src/shader.hpp
     src/stb_image.h
+    ${IMGUI_SOURCES}
 )
 
 # Create the executable

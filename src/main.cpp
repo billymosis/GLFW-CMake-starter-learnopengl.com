@@ -10,6 +10,9 @@
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "./stb_image.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,12 +23,15 @@ void processInput(GLFWwindow *window, float deltaTime);
 
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods);
+
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
 unsigned int loadTexture(char const *path);
 
-const float window_height = 800.0f;
-const float window_width = 600.0f;
+int window_height = 800;
+int window_width = 600;
 
 // Timing
 float deltaTime = 0.0f;
@@ -36,12 +42,17 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 double lastX = window_height / 2.0f;
 double lastY = window_width / 2.0f;
 bool firstMouse = false;
+bool enableMouse = false;
 
 // lighting
 glm::vec3 lightPos(0.0f, 0.25f, 0.0f);
 
+static void glfw_error_callback(int error, const char *description) {
+  fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
 int main() {
-  std::cout << "Hello World!" << std::endl; // GLFW initialize and configure
+  glfwSetErrorCallback(glfw_error_callback);
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -56,11 +67,30 @@ int main() {
     return -1;
   }
   glfwMakeContextCurrent(window);
+  glfwGetFramebufferSize(window, &window_width, &window_height);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
+  glfwSetMouseButtonCallback(window, mouse_button_callback);
   glfwSetScrollCallback(window, scroll_callback);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+  // ImGui::StyleColorsLight();
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init();
 
   // GLAD load all OpenGL function pointer
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -167,13 +197,25 @@ int main() {
   lightingShader.setInt("material.diffuse", 0);
   lightingShader.setInt("material.specular", 1);
 
-int maxTextureUnits;
-glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
+  // imgui state
+  bool show_demo_window = true;
+  bool show_another_window = false;
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+  float speedFactor = 2.5f;
   // render loop
   // -----------
   while (!glfwWindowShouldClose(window)) {
+    // imgui logic
+    if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
+      ImGui_ImplGlfw_Sleep(10);
+      continue;
+    }
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     // per-frame time logic
     // --------------------
     float currentFrame = static_cast<float>(glfwGetTime());
@@ -190,8 +232,8 @@ std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // orbit
-    lightPos.x = sin(glfwGetTime());
-    lightPos.z = cos(glfwGetTime());
+    lightPos.x = sin(glfwGetTime() * speedFactor);
+    lightPos.z = cos(glfwGetTime() * speedFactor);
 
     // be sure to activate shader when setting uniforms/drawing objects
     lightingShader.use();
@@ -220,7 +262,7 @@ std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
 
     // view/projection transformations
     glm::mat4 projection = glm::perspective(
-        glm::radians(45.0f), (float)window_height / (float)window_width, 0.1f,
+        glm::radians(45.0f), (float)window_width / (float)window_height, 0.1f,
         100.0f);
     glm::mat4 view = camera.GetViewMatrix();
     lightingShader.setMat4("projection", projection);
@@ -253,6 +295,18 @@ std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
     glBindVertexArray(lightCubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+    {
+      ImGui::Begin("SETTINGS");
+      ImGui::Checkbox("Enable Mouse", &enableMouse);
+      ImGui::SliderFloat("speed", &speedFactor, 0.0f, 10.0f);
+      ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                  1000.0f / io.Framerate, io.Framerate);
+      ImGui::End();
+    }
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved
     // etc.)
     // -------------------------------------------------------------------------------
@@ -266,6 +320,11 @@ std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
   glDeleteVertexArrays(1, &lightCubeVAO);
   glDeleteBuffers(1, &VBO);
 
+  // imgui cleanup
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
+
   // glfw: terminate, clearing all previously allocated GLFW resources.
   // ------------------------------------------------------------------
   glfwTerminate();
@@ -274,6 +333,8 @@ std::cout << "Maximum texture units: " << maxTextureUnits << std::endl;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
+  window_width = width;
+  window_height = height;
 }
 
 void processInput(GLFWwindow *window, float deltaTime) {
@@ -304,7 +365,9 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
   float yoffset = lastY - ypos;
   lastX = xpos;
   lastY = ypos;
-  camera.ProcessMouseMovement(xoffset, yoffset);
+  if (enableMouse) {
+    camera.ProcessMouseMovement(xoffset, yoffset);
+  }
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
@@ -341,9 +404,15 @@ unsigned int loadTexture(char const *path) {
 
     stbi_image_free(data);
   } else {
-    std::cout << "Texture failed to load at path: " << path << std::endl;
     stbi_image_free(data);
   }
 
   return textureID;
+}
+
+void mouse_button_callback(GLFWwindow *window, int button, int action,
+                           int mods) {
+  if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    enableMouse = !enableMouse;
+  }
 }
