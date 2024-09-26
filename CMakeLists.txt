@@ -38,6 +38,10 @@ set(IMGUI_SOURCES
 include_directories("${PROJECT_SOURCE_DIR}/external/glad/include")
 set(GLAD_SOURCES "${PROJECT_SOURCE_DIR}/external/glad/src/glad.c")
 
+# Include assimp
+set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "Disable Assimp warnings as errors")
+add_subdirectory(external/assimp)
+
 # Uncomment this to use default glad dependencies inside glfw
 # option( GLFW-CMAKE-STARTER-USE-GLFW-GLAD "Use GLAD from GLFW" ON )
 #
@@ -57,6 +61,10 @@ set(GLFW-CMAKE-STARTER-SRC
     src/shader.cpp
     src/shader.hpp
     src/stb_image.h
+    src/model.hpp
+    src/model.cpp
+    src/mesh.cpp
+    src/mesh.hpp
     ${IMGUI_SOURCES}
 )
 
@@ -65,7 +73,7 @@ set(GLFW-CMAKE-STARTER-SRC
 add_executable(GLFW-CMake-starter ${GLFW-CMAKE-STARTER-SRC} ${GLAD_SOURCES})
 
 # Link libraries
-target_link_libraries(GLFW-CMake-starter ${OPENGL_LIBRARIES} glfw glm)
+target_link_libraries(GLFW-CMake-starter ${OPENGL_LIBRARIES} glfw glm assimp)
 
 # Set Visual Studio startup project
 if(MSVC)

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "glm/detail/type_mat.hpp"
-#include "glm/detail/type_vec.hpp"
+#include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <string>
 
