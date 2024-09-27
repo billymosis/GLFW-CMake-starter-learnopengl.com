@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(GLFW-CMake-starter)
+project(gl_learn)
 
 find_package(OpenGL REQUIRED)
 
@@ -56,7 +56,7 @@ if(MSVC)
 endif()
 
 # Source files for your project
-set(GLFW-CMAKE-STARTER-SRC
+set(lear_gl_src
     src/main.cpp
     src/shader.cpp
     src/shader.hpp
@@ -70,10 +70,10 @@ set(GLFW-CMAKE-STARTER-SRC
 
 # Create the executable
 # add_executable(GLFW-CMake-starter WIN32 ${GLFW-CMAKE-STARTER-SRC} ${GLAD_SOURCES})
-add_executable(GLFW-CMake-starter ${GLFW-CMAKE-STARTER-SRC} ${GLAD_SOURCES})
+add_executable(learn_gl ${lear_gl_src} ${GLAD_SOURCES})
 
 # Link libraries
-target_link_libraries(GLFW-CMake-starter ${OPENGL_LIBRARIES} glfw glm assimp)
+target_link_libraries(learn_gl ${OPENGL_LIBRARIES} glfw glm assimp)
 
 # Set Visual Studio startup project
 if(MSVC)
