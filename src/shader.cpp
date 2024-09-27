@@ -1,5 +1,4 @@
 #include "shader.hpp"
-#include "glm/detail/type_mat.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <fstream>
 #include <iostream>
